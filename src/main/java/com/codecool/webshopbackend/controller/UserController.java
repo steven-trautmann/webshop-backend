@@ -14,6 +14,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins= "http://localhost:3000", allowCredentials = "true")
+@RequestMapping("/user")
 public class UserController {
 
     @Autowired
@@ -51,12 +53,19 @@ public class UserController {
         model.put("userId", id);
 
         // create a cookie
-        Cookie cookie = new Cookie("username", user.getUserName());
-        cookie.setMaxAge(7 * 24 * 60 * 60); // expires in 7 days
-        cookie.setHttpOnly(true); //client-side cannot react it
-        cookie.setPath("/"); // global
+        Cookie cookieUserName = new Cookie("username", user.getUserName());
+        cookieUserName.setMaxAge(7 * 24 * 60 * 60); // expires in 7 days
+        cookieUserName.setHttpOnly(true); //client-side cannot react it
+        cookieUserName.setPath("/"); // global
         //add cookie to response
-        response.addCookie(cookie);
+        response.addCookie(cookieUserName);
+
+        // create a cookie
+        Cookie cookieToken = new Cookie("token", token);
+        cookieToken.setMaxAge(7 * 24 * 60 * 60);
+        cookieToken.setHttpOnly(true);
+        cookieToken.setPath("/");
+        response.addCookie(cookieToken);
 
         return ResponseEntity.ok(model);
     }
@@ -77,12 +86,18 @@ public class UserController {
             String token = jwtTokenServices.createToken(username, roles);
 
             // create a cookie
-            Cookie cookie = new Cookie("username", username);
-            cookie.setMaxAge(7 * 24 * 60 * 60); // expires in 7 days
-            cookie.setHttpOnly(true); //client-side cannot react it
-            cookie.setPath("/"); // global
-            //add cookie to response
-            response.addCookie(cookie);
+            Cookie cookieUserName = new Cookie("username", username);
+            cookieUserName.setMaxAge(7 * 24 * 60 * 60);
+            cookieUserName.setHttpOnly(true);
+            cookieUserName.setPath("/");
+            response.addCookie(cookieUserName);
+
+            // create a cookie
+            Cookie cookieToken = new Cookie("token", token);
+            cookieToken.setMaxAge(7 * 24 * 60 * 60);
+            cookieToken.setHttpOnly(true);
+            cookieToken.setPath("/");
+            response.addCookie(cookieToken);
 
             Long id = appUserService.getIdFromUserName(username);
 
@@ -109,10 +124,14 @@ public class UserController {
     return "logged out";
     }
 
-    @GetMapping("/read-cookie")
-    public String read(@CookieValue(value = "username") String username) {
+    @GetMapping("/read-cookies")
+    public String readAllCookie(HttpServletRequest request) {
         System.out.println("reading cookie -------------------");
-        System.out.println("username: " + username);
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            System.out.println(Arrays.stream(cookies)
+                    .map(c -> c.getName() + "=" + c.getValue()).collect(Collectors.joining(", ")));
+        }
         System.out.println("cookie read ----------------------");
         return "its read";
     }
