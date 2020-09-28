@@ -13,4 +13,16 @@ public class AppUserService {
 
     @Autowired
     AppUserRepository userRepository;
+
+    public Long getIdFromUserName(String userName){
+        return userRepository.getIdByUserName(userName);
+    }
+
+    public Long saveNewUser(AppUser user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        userRepository.save(user);
+        return getIdFromUserName(user.getUserName());
+    }
+
 }
+

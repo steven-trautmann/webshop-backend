@@ -1,4 +1,4 @@
-package com.codecool.webshopbackend.config;
+package com.codecool.webshopbackend.security;
 
 import com.codecool.webshopbackend.entity.AppUser;
 import com.codecool.webshopbackend.repository.AppUserRepository;
@@ -26,7 +26,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         AppUser user = users.findByUserName(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Nickname: " + username + " not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("Username: " + username + " not found"));
 
         return new org.springframework.security.core.userdetails.User(user.getUserName(), user.getPassword(),
                 user.getRoles().stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList()));
