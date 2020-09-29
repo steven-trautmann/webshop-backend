@@ -50,16 +50,20 @@ public class JwtTokenServices {
     }
 
     String getTokenFromRequest(HttpServletRequest req) {
-        Cookie JwtTokenCookie = null;
+        if (req.getCookies() == null){
+            return null;
+        }
+        Cookie jwtTokenCookie = null;
+
         for (Cookie cookie : req.getCookies()){
             if (cookie.getName().equals("token")){
-                JwtTokenCookie = cookie;
+                jwtTokenCookie = cookie;
                 break;
             }
         }
 
-        if (JwtTokenCookie != null) {
-            return JwtTokenCookie.getValue();
+        if (jwtTokenCookie != null && jwtTokenCookie.getValue() != null) {
+            return jwtTokenCookie.getValue();
         }
         return null;
     }

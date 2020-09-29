@@ -45,12 +45,6 @@ public class UserController {
         Long id = appUserService.saveNewUser(user);
 
         String token = jwtTokenServices.createToken(user.getUserName(), user.getRoles());
-        Map<Object, Object> model = new HashMap<>();
-        model.put("username", user.getUserName());
-        model.put("roles", user.getRoles());
-        model.put("status", "ok");
-        model.put("token", token);
-        model.put("userId", id);
 
         // create a cookie
         Cookie cookieUserName = new Cookie("username", user.getUserName());
@@ -66,6 +60,11 @@ public class UserController {
         cookieToken.setHttpOnly(true);
         cookieToken.setPath("/");
         response.addCookie(cookieToken);
+
+        Map<Object, Object> model = new HashMap<>();
+        model.put("username", user.getUserName());
+        model.put("roles", user.getRoles());
+        model.put("userId", id);
 
         return ResponseEntity.ok(model);
     }
@@ -85,14 +84,14 @@ public class UserController {
 
             String token = jwtTokenServices.createToken(username, roles);
 
-            // create a cookie
+            // create a cookie for username
             Cookie cookieUserName = new Cookie("username", username);
             cookieUserName.setMaxAge(7 * 24 * 60 * 60);
             cookieUserName.setHttpOnly(true);
             cookieUserName.setPath("/");
             response.addCookie(cookieUserName);
 
-            // create a cookie
+            // create a cookie for the JWT Token
             Cookie cookieToken = new Cookie("token", token);
             cookieToken.setMaxAge(7 * 24 * 60 * 60);
             cookieToken.setHttpOnly(true);
@@ -104,7 +103,6 @@ public class UserController {
             Map<Object, Object> model = new HashMap<>();
             model.put("username", username);
             model.put("roles", roles);
-            model.put("token", token);
             model.put("userId", id);
             return ResponseEntity.ok(model);
         } catch (AuthenticationException e) {
@@ -114,12 +112,18 @@ public class UserController {
 
     @GetMapping("/logout")
     public String logout(HttpServletResponse response){
-    Cookie cookie = new Cookie("username", null);
-    cookie.setMaxAge(0);
-    cookie.setHttpOnly(true);
-    cookie.setPath("/");
+    Cookie cookieUserName = new Cookie("username", null);
+    cookieUserName.setMaxAge(0);
+    cookieUserName.setHttpOnly(true);
+    cookieUserName.setPath("/");
 
-    response.addCookie(cookie);
+    response.addCookie(cookieUserName);
+
+    Cookie cookieToken = new Cookie("token", null);
+    cookieToken.setMaxAge(0);
+    cookieToken.setHttpOnly(true);
+    cookieToken.setPath("/");
+    response.addCookie(cookieToken);
 
     return "logged out";
     }
