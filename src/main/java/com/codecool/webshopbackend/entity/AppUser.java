@@ -15,6 +15,11 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @Entity
+@Table(indexes = {
+        @Index(name = "username", columnList = "userName"),
+        @Index(name = "phone", columnList = "phoneNumber"),
+        @Index(name = "email", columnList = "email")
+})
 public class AppUser {
     @Id
     @GeneratedValue
