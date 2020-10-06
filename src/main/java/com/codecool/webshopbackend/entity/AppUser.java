@@ -37,9 +37,16 @@ public class AppUser {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(nullable = false, unique = true)
     private String phoneNumber;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
     private List<String> roles = new ArrayList<>();
+
+     public boolean checkIfNotNullableFieldsAreNull(){
+         return firstName == null || firstName.equals("") || lastName == null || lastName.equals("")
+                 || userName == null || userName.equals("") || password == null || password.equals("")
+                 || email == null || email.equals("") || phoneNumber == null || phoneNumber.equals("");
+     }
 }

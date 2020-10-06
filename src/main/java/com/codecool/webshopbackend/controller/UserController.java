@@ -41,8 +41,36 @@ public class UserController {
 
     @PostMapping("/registration")
     public ResponseEntity<?> registration(@RequestBody AppUser user, HttpServletResponse response){
+        //check if not nullable fields are null or ""
+        if (user.checkIfNotNullableFieldsAreNull()){
+            Map<Object, Object> model = new HashMap<>();
+            model.put("nullableError", "confirmed");
+            return ResponseEntity.badRequest().body(model);
+        }
+
+        //check email validity
+        String re = "^[\\w\\-.+_%]+@[\\w\\.\\-]+\\.[A-Za-z0-9]{2,}$";
+        if (!user.getEmail().matches(re)){
+            Map<Object, Object> model = new HashMap<>();
+            model.put("emailValidityError", "confirmed");
+            return ResponseEntity.badRequest().body(model);
+        }
+
         user.setRoles(Arrays.asList("ROLE_USER"));
-        Long id = appUserService.saveNewUser(user);
+        Long id = null;
+
+        //handling unique constraint error
+        try {
+            id = appUserService.saveNewUser(user);
+        } catch (Exception e) {
+            Map<Object, Object> model = new HashMap<>();
+            for (Throwable t = e.getCause(); t != null; t = t.getCause()) {
+                if (t.getClass().equals(org.postgresql.util.PSQLException.class) && t.getMessage().toLowerCase().contains("violates unique constraint")){
+                    model.put("constraintError", t.getMessage());
+                }
+            }
+            return ResponseEntity.badRequest().body(model);
+        }
 
         String token = jwtTokenServices.createToken(user.getUserName(), user.getRoles());
 
