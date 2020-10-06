@@ -24,5 +24,16 @@ public class AppUserService {
         return getIdFromUserName(user.getUserName());
     }
 
+    public boolean checkIfEmailUnique(String email) {
+        return userRepository.findByEmail(email) == null;
+    }
+
+    public boolean checkIfUserNameUnique(String username) {
+        return userRepository.findByUserName(username).isEmpty();
+    }
+
+    public boolean checkIfPhoneNumberUnique(String phone) {
+        return userRepository.findByPhoneNumber(phone).isEmpty();
+    }
 }
 

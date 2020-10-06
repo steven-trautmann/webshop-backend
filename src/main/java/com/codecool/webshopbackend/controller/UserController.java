@@ -56,20 +56,37 @@ public class UserController {
             return ResponseEntity.badRequest().body(model);
         }
 
+        //check email uniqueness
+        if (!appUserService.checkIfEmailUnique(user.getEmail())){
+            Map<Object, Object> model = new HashMap<>();
+            model.put("emailUniquenessError", "confirmed");
+            return ResponseEntity.badRequest().body(model);
+        }
+
+        //check username is unique
+        if (!appUserService.checkIfUserNameUnique(user.getUserName())){
+            Map<Object, Object> model = new HashMap<>();
+            model.put("userNameUniquenessError", "confirmed");
+            return ResponseEntity.badRequest().body(model);
+        }
+
+        //check phone number is unique
+        if (!appUserService.checkIfPhoneNumberUnique(user.getPhoneNumber())){
+            Map<Object, Object> model = new HashMap<>();
+            model.put("phoneNumberUniquenessError", "confirmed");
+            return ResponseEntity.badRequest().body(model);
+        }
+
         user.setRoles(Arrays.asList("ROLE_USER"));
         Long id = null;
 
-        //handling unique constraint error
+        //database error
         try {
             id = appUserService.saveNewUser(user);
         } catch (Exception e) {
             Map<Object, Object> model = new HashMap<>();
-            for (Throwable t = e.getCause(); t != null; t = t.getCause()) {
-                if (t.getClass().equals(org.postgresql.util.PSQLException.class) && t.getMessage().toLowerCase().contains("violates unique constraint")){
-                    model.put("constraintError", t.getMessage());
-                }
-            }
-            return ResponseEntity.badRequest().body(model);
+            model.put("error", "error occurred when trying to save user to the database!");
+            return ResponseEntity.status(500).body(model);
         }
 
         String token = jwtTokenServices.createToken(user.getUserName(), user.getRoles());
@@ -154,6 +171,21 @@ public class UserController {
     response.addCookie(cookieToken);
 
     return "logged out";
+    }
+
+    @PostMapping("/check-email")
+    public boolean checkEmailUniqueness(@RequestBody Map<String, Object> data){
+        return appUserService.checkIfEmailUnique(data.get("email").toString());
+    }
+
+    @PostMapping("/check-username")
+    public boolean checkUserNameUniqueness(@RequestBody Map<String, Object> data){
+        return appUserService.checkIfUserNameUnique(data.get("username").toString());
+    }
+
+    @PostMapping("/check-phone")
+    public boolean checkPhoneNumberUniqueness(@RequestBody Map<String, Object> data){
+        return appUserService.checkIfPhoneNumberUnique(data.get("phone").toString());
     }
 
     @GetMapping("/read-cookies")
