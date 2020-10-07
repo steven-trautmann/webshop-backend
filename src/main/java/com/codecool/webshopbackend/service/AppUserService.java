@@ -7,6 +7,8 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+
 @Service
 public class AppUserService {
     private final PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
@@ -34,6 +36,16 @@ public class AppUserService {
 
     public boolean checkIfPhoneNumberUnique(String phone) {
         return userRepository.findByPhoneNumber(phone).isEmpty();
+    }
+
+    public boolean checkIfBirthdayIsInPreferredRange(LocalDate birthday) {
+        if (birthday == null){
+            return true;
+        }
+        boolean isAfter = birthday.isAfter(LocalDate.parse("1900-01-01"));
+        boolean isBefore = birthday.isBefore(LocalDate.now());
+
+        return isAfter && isBefore;
     }
 }
 

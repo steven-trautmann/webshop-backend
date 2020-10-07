@@ -77,6 +77,13 @@ public class UserController {
             return ResponseEntity.badRequest().body(model);
         }
 
+        //check birthday is between 1900 and today
+        if (!appUserService.checkIfBirthdayIsInPreferredRange(user.getBirthday())){
+            Map<Object, Object> model = new HashMap<>();
+            model.put("birthDayOutOfRangeError", "confirmed");
+            return ResponseEntity.badRequest().body(model);
+        }
+
         user.setRoles(Arrays.asList("ROLE_USER"));
         Long id = null;
 
