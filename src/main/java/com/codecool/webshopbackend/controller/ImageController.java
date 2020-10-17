@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @CrossOrigin(origins= "http://localhost:3000", allowCredentials = "true")
@@ -30,7 +32,11 @@ public class ImageController {
     @PostMapping(value="/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadFile(@RequestParam MultipartFile file) {
         makeDirectoryIfNotExist(imageDirectory);
-        System.out.println(file.getOriginalFilename());
+        if (file.getContentType() == null || !file.getContentType().equals("image/jpeg") && !file.getContentType().equals("image/png")){
+            Map<Object, Object> model = new HashMap<>();
+            model.put("UnsupportedTypeError", "confirmed");
+            return ResponseEntity.badRequest().body(model);
+        }
 
         Path fileNamePath = Paths.get(imageDirectory, file.getOriginalFilename());
         try {
