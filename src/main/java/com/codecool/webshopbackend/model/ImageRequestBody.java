@@ -9,10 +9,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ResponseImage {
+public class ImageRequestBody {
 
-        private String name;
+        private Long user_id;
         private String url;
-        private String type;
-        private long size;
+
+        public boolean fieldsAreNotNull() {
+                return user_id != null && url != null;
+        }
 }

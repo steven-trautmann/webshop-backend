@@ -25,6 +25,10 @@ public class AppUser {
     @GeneratedValue
     private Long id;
 
+    @OneToOne(mappedBy = "appUser", cascade = CascadeType.ALL)
+    @PrimaryKeyJoinColumn
+    private ImageDB imageDB;
+
     @Column(nullable = false)
     private String firstName;
 

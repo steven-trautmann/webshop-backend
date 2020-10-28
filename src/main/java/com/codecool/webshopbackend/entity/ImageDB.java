@@ -18,8 +18,10 @@ public class ImageDB {
     @GeneratedValue
     Long id;
 
-    @Column(nullable = false, unique = true)
-    private String name;
+    @OneToOne
+    @MapsId
+    @JoinColumn
+    private AppUser appUser;
 
     @Column(nullable = false, unique = true)
     private String url;

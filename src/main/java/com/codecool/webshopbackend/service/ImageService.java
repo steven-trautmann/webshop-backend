@@ -1,11 +1,9 @@
 package com.codecool.webshopbackend.service;
 
-import com.codecool.webshopbackend.entity.ImageDB;
+import com.codecool.webshopbackend.model.ImageRequestBody;
 import com.codecool.webshopbackend.repository.ImageDBRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Map;
 
 @Service
 public class ImageService {
@@ -13,17 +11,15 @@ public class ImageService {
     @Autowired
     private ImageDBRepository imageDBRepository;
 
-    public void saveImage(ImageDB imageDB) {
-        imageDBRepository.save(imageDB);
+    public void saveImage(ImageRequestBody image) {
+        imageDBRepository.saveImage(image.getUser_id(), image.getUrl());
     }
 
-    public String getUrlByUserName(String name) {
-        return imageDBRepository.getUrlByName(name);
+    public String getUrlByUserId(Long id) {
+        return imageDBRepository.getUrlByUserId(id);
     }
 
-    public void updateImage(Map<String, String> imageDBImitator) {
-        String name = imageDBImitator.get("name");
-        String url = imageDBImitator.get("url");
-        imageDBRepository.updateUrlByName(url, name);
+    public void updateImage(ImageRequestBody image) {
+        imageDBRepository.updateUrlByUserId(image.getUrl(), image.getUser_id());
     }
 }
