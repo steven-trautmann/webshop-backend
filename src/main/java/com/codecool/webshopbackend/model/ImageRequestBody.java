@@ -13,8 +13,13 @@ public class ImageRequestBody {
 
         private Long user_id;
         private String url;
+        private String imageType;
 
         public boolean fieldsAreNotNull() {
-                return user_id != null && url != null;
+                return user_id != null && url != null && imageType != null;
+        }
+
+        public boolean imageTypeIsValid() {
+                return imageType.equals("jpg") || imageType.equals("jpeg") || imageType.equals("png");
         }
 }

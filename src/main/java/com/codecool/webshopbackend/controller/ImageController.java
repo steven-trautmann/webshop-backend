@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 import java.security.Principal;
+import java.util.Map;
 
 @RestController
 @CrossOrigin(origins= "http://localhost:3000", allowCredentials = "true")
@@ -22,19 +23,19 @@ public class ImageController {
 
     @PostMapping("/upload")
     public void uploadFile(@RequestBody ImageRequestBody image) throws Exception {
-        if (image.fieldsAreNotNull()){
+        if (image.fieldsAreNotNull() && image.imageTypeIsValid()){
             imageService.saveImage(image);
         } else {
-            throw new Exception("Some fields are null.");
+            throw new Exception("Incorrect request.");
         }
     }
 
     @PostMapping("/change")
     public void changeFile(@RequestBody ImageRequestBody image) throws Exception {
-        if (image.fieldsAreNotNull()){
+        if (image.fieldsAreNotNull() && image.imageTypeIsValid()){
             imageService.updateImage(image);
         } else {
-            throw new Exception("Some fields are null.");
+            throw new Exception("Incorrect request.");
         }
     }
 
@@ -43,10 +44,8 @@ public class ImageController {
         return appUserService.getIdFromUserName(principal.getName()).toString(); //This has three purpose: get the filename && check if the backend is working && the user is logged in!
     }
 
-    @GetMapping("/profile-url")
-    public String getProfileUrl(Principal principal){
-        return imageService.getUrlByUserId(appUserService.getIdFromUserName(principal.getName()));
+    @GetMapping("/profile-img-data")
+    public Map<String, Object> getProfileImgData(Principal principal){
+        return imageService.getProfileImgDataById(appUserService.getIdFromUserName(principal.getName()));
     }
-    
-
 }

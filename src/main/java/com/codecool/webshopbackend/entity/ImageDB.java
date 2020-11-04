@@ -26,4 +26,7 @@ public class ImageDB {
     @Column(nullable = false, unique = true)
     private String url;
 
+    @Column(nullable = false)
+    private String imageType;
+
 }
