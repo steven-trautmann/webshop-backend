@@ -4,6 +4,9 @@ import com.codecool.webshopbackend.entity.AppUser;
 import com.codecool.webshopbackend.security.JwtTokenServices;
 import com.codecool.webshopbackend.service.AppUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpCookie;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -98,20 +101,22 @@ public class UserController {
 
         String token = jwtTokenServices.createToken(user.getUserName(), user.getRoles());
 
-        // create a cookie
-        Cookie cookieUserName = new Cookie("username", user.getUserName());
-        cookieUserName.setMaxAge(7 * 24 * 60 * 60); // expires in 7 days
-        cookieUserName.setHttpOnly(true); //client-side cannot react it
-        cookieUserName.setPath("/"); // global
-        //add cookie to response
-        response.addCookie(cookieUserName);
+        // create a cookie - userName
+//        Cookie cookieUserName = new Cookie("username", user.getUserName());
+//        cookieUserName.setMaxAge(7 * 24 * 60 * 60); // expires in 7 days
+//        cookieUserName.setHttpOnly(true); //client-side cannot react it
+//        cookieUserName.setPath("/"); // global
+//        //add cookie to response
+//        response.addCookie(cookieUserName);
 
-        // create a cookie
-        Cookie cookieToken = new Cookie("token", token);
-        cookieToken.setMaxAge(7 * 24 * 60 * 60);
-        cookieToken.setHttpOnly(true);
-        cookieToken.setPath("/");
-        response.addCookie(cookieToken);
+        HttpCookie cookieUserName = ResponseCookie.from("username", user.getUserName())
+                .maxAge(7 * 24 * 60 * 60).httpOnly(true).path("/").sameSite("Strict").build();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookieUserName.toString());
+
+        // create a cookie - token
+        HttpCookie cookieToken = ResponseCookie.from("token", token)
+                .maxAge(7 * 24 * 60 * 60).httpOnly(true).path("/").sameSite("Strict").build();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookieToken.toString());
 
         Map<Object, Object> model = new HashMap<>();
         model.put("username", user.getUserName());
@@ -137,18 +142,14 @@ public class UserController {
             String token = jwtTokenServices.createToken(username, roles);
 
             // create a cookie for username
-            Cookie cookieUserName = new Cookie("username", username);
-            cookieUserName.setMaxAge(7 * 24 * 60 * 60);
-            cookieUserName.setHttpOnly(true);
-            cookieUserName.setPath("/");
-            response.addCookie(cookieUserName);
+            HttpCookie cookieUserName = ResponseCookie.from("username", username)
+                    .maxAge(7 * 24 * 60 * 60).httpOnly(true).path("/").sameSite("Strict").build();
+            response.addHeader(HttpHeaders.SET_COOKIE, cookieUserName.toString());
 
             // create a cookie for the JWT Token
-            Cookie cookieToken = new Cookie("token", token);
-            cookieToken.setMaxAge(7 * 24 * 60 * 60);
-            cookieToken.setHttpOnly(true);
-            cookieToken.setPath("/");
-            response.addCookie(cookieToken);
+            HttpCookie cookieToken = ResponseCookie.from("token", token)
+                    .maxAge(7 * 24 * 60 * 60).httpOnly(true).path("/").sameSite("Strict").build();
+            response.addHeader(HttpHeaders.SET_COOKIE, cookieToken.toString());
 
             Long id = appUserService.getIdFromUserName(username);
 
